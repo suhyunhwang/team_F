@@ -5,8 +5,7 @@ import java.util.Random;
 /**
  * NoonGameLogic
  * - 점심 스테이지(미연시) 진행을 담당하는 순수 로직 클래스.
- * - 콘솔 입출력(X), Scanner(X)
- * - 대사/상태를 문자열로 만들어서 GUI에 넘겨주는 역할만 함.
+ * - 콘솔 입출력 없음 / GUI에서 호출만 됨
  */
 public class NoonGameLogic {
 
@@ -26,8 +25,10 @@ public class NoonGameLogic {
     public String start() {
         interactionCount = 0;
         gameOver = false;
+
         return "=== 점심 스테이지: 캠퍼스 미연시 시작 ===\n"
-             + "주인공: 컴공과 2학년, 반복되는 하루 속에서 루프를 깨고 싶어 한다.\n\n"
+             + "주인공: 컴공과 2학년. 반복되는 하루 속에서 이미 루프를 자각하고 있다.\n"
+             + "NPC들의 작은 힌트들을 통해, 오늘 루프에서 틈을 찾고자 한다.\n\n"
              + buildNpcDialogue(1);
     }
 
@@ -37,10 +38,12 @@ public class NoonGameLogic {
             return "[시스템] 이미 이 루프는 끝났습니다.";
         }
 
+        // 이미 종료된 상태에서 또 선택 시
         if (interactionCount >= MAX_INTERACTIONS) {
-            return "=== 점심 스테이지 종료 ===\n"
-                 + "…였던 것 같은데.\n"
-                 + "왜 이렇게 익숙하지?";
+            return "=== 점심 스테이지는 이미 종료되었다 ===\n"
+                 + "NPC들의 반복되는 말들이 머리를 스친다.\n"
+                 + "이 점심 루프에서는 더 바꿀 수 있는 게 없는 것 같다.\n"
+                 + "다음 루프에서는… 다른 시간대에서 실마리를 찾아야 한다.";
         }
 
         int npcIndex = interactionCount + 1;
@@ -50,7 +53,6 @@ public class NoonGameLogic {
         sb.append("---------- [대화 ").append(npcIndex).append("회차 결과] ----------\n");
 
         // NPC + 선택에 따라 상태 변화 적용
-        String npcName = getNpcName(npcIndex);
         applyNpcEffect(npcIndex, choice, sb);
 
         // 상태 출력
@@ -63,6 +65,7 @@ public class NoonGameLogic {
         // Game Over 체크
         if (hp <= 0 || mental <= 0 || knowledge <= 0) {
             gameOver = true;
+
             if (hp <= 0) {
                 sb.append("\nGame Over - 체력 0 (기절 엔딩)\n");
             } else if (mental <= 0) {
@@ -78,13 +81,20 @@ public class NoonGameLogic {
         // 다음 NPC가 남아 있으면 그 대사도 이어서 붙여줌
         if (interactionCount < MAX_INTERACTIONS) {
             int nextNpc = interactionCount + 1;
+
             sb.append("\n---------- [대화 ")
               .append(nextNpc).append("회차] ----------\n");
+
             sb.append(buildNpcDialogue(nextNpc));
+
         } else {
+            // ===== 점심 루프 정상 종료 엔딩 =====
             sb.append("\n=== 점심 스테이지 종료 ===\n")
-              .append("…였던 것 같은데.\n")
-              .append("왜 이렇게 익숙하지?");
+              .append("오늘 점심도… 결국 같은 흐름으로 흘러갔다.\n")
+              .append("NPC들의 말 속에서 스쳐 지나간 ‘익숙함’과 ‘데자뷰’. \n")
+              .append("주인공은 확신한다. 이건 단순한 기분 탓이 아니라…\n")
+              .append("분명히 루프다.\n")
+              .append("다음 루프에서는 다른 선택지를 찾아봐야 한다.");
         }
 
         return sb.toString();
@@ -116,23 +126,23 @@ public class NoonGameLogic {
         switch (npc) {
             case 1 -> {
                 sb.append("교수님: \"과제 어디까지 진행됐습니까?\"\n");
-                maybeAppendHint(sb, "아까도… 같은 표정이었지?");
+                maybeAppendHint(sb, "표정이… 아까와 똑같이 느껴진다.");
             }
             case 2 -> {
                 sb.append("버스기사: \"오늘 학교 가?\"\n");
-                maybeAppendHint(sb, "이 버스… 몇 번째 타는 거지?");
+                maybeAppendHint(sb, "이 버스, 몇 번째 타고 있는 거지…?");
             }
             case 3 -> {
                 sb.append("학교 친구: \"코딩 어디까지 했냐?\"\n");
-                maybeAppendHint(sb, "너 계속… 이 부분에서 멈추는 것 같아.");
+                maybeAppendHint(sb, "너… 계속 같은 질문을 하는 것 같은데?");
             }
             case 4 -> {
                 sb.append("선배: \"이 방향 맞는 거야?\"\n");
-                maybeAppendHint(sb, "방금도… 여기서 서성이지 않았냐?");
+                maybeAppendHint(sb, "아까도 여기서 길을 물어본 것 같았다.");
             }
             case 5 -> {
                 sb.append("후배: \"선배님 이 코드 좀…\"\n");
-                maybeAppendHint(sb, "오늘도, 같은 자리에서 기다리고 있었어요.");
+                maybeAppendHint(sb, "오늘도 같은 자리에서 기다리고 있었네.");
             }
             case 6 -> {
                 sb.append("동아리 사람: \"오늘 연습 가능?\"\n");
@@ -140,28 +150,28 @@ public class NoonGameLogic {
             }
             case 7 -> {
                 sb.append("헬창: \"하체 언제 할 거야?\"\n");
-                maybeAppendHint(sb, "루틴만 반복하면, 시간 감각이 사라지더라.");
+                maybeAppendHint(sb, "루틴만 반복하면… 시간 감각이 흐려지더라.");
             }
             case 8 -> {
                 sb.append("식당 주인: \"밥 먹고 가!\"\n");
-                maybeAppendHint(sb, "오늘 메뉴도… 똑같이 시킬 거지?");
+                maybeAppendHint(sb, "오늘 메뉴도… 똑같이 시키려나?");
             }
             case 9 -> {
                 sb.append("대학원생: \"코딩은 사고의 문제입니다.\"\n");
-                maybeAppendHint(sb, "방금 대답, 전에도 들은 것 같은데.");
+                maybeAppendHint(sb, "방금 그 말… 전에 들은 적 있었는데.");
             }
             case 10 -> {
                 sb.append("스님: \"하루를 되풀이하는 중생이여…\"\n");
-                sb.append("스님: \"지금이 몇 번째 시도인지, 너는 모른다.\"\n");
-                sb.append("스님: \"하지만 나는… 전부 보고 있었다.\"\n");
+                sb.append("스님: \"너는 지금 몇 번째 시도인지 알고 있는가?\"\n");
+                sb.append("스님: \"나는… 전부 지켜보고 있다.\"\n");
             }
             case 11 -> {
                 sb.append("과대표: \"공지 좀 읽어줘.\"\n");
-                maybeAppendHint(sb, "왜 자꾸 같은 말만 하는 거지…?");
+                maybeAppendHint(sb, "왜 자꾸 같은 말만 반복하는 걸까…?");
             }
             case 12 -> {
                 sb.append("조교: \"보고서 형식 다시 보세요.\"\n");
-                maybeAppendHint(sb, "이 피드백, 계속 반복되는 것 같지 않아요?");
+                maybeAppendHint(sb, "이 피드백… 계속 반복되는 느낌이다.");
             }
             default -> sb.append("??? : \"...\"\n");
         }
@@ -208,12 +218,11 @@ public class NoonGameLogic {
                 if (choice == 1)       { dSocial += 1; dMental -= 1; }
                 else if (choice == 3) { dSocial -= 2; dMental -= 1; }
             }
-            case 6 -> { // 동아리 사람 (무시 포지티브)
+            case 6 -> { // 동아리 사람
                 if (choice == 1)       { dSocial += 1; dhp -= 1; }
-                else if (choice == 2) { dMental += 1; dSocial -= 1; }
-                else                  { dMental += 1; dSocial -= 1; }
+                else                   { dMental += 1; dSocial -= 1; }
             }
-            case 7 -> { // 헬창 (무시 포지티브)
+            case 7 -> { // 헬창
                 if (choice == 1)       { dhp += 1; }
                 else if (choice == 2) { dSocial -= 1; }
                 else                  { dMental += 1; dSocial -= 1; }
@@ -229,7 +238,7 @@ public class NoonGameLogic {
             }
             case 10 -> { // 스님
                 if (choice == 1)       { dMental += 2; dKnow += 1; }
-                else                  { dMental += 1; } // 거절/무시 모두 멘탈 +1
+                else                  { dMental += 1; }
             }
             case 11 -> { // 과대표
                 if (choice == 1)       { dKnow += 1; dSocial += 1; dMental -= 1; }
