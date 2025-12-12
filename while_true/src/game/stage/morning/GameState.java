@@ -1,4 +1,4 @@
-package morning;
+package game.stage.morning;
 
 import java.awt.Point;
 import java.util.Random;
