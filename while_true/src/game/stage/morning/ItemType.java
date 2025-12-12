@@ -1,4 +1,4 @@
-package morning;
+package game.stage.morning;
 
 public enum ItemType {
     APPLE("사과", "apple", new StatDelta(+5, 0, 0, 0)),
