@@ -1,4 +1,4 @@
-package morning;
+package game.stage.morning;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
