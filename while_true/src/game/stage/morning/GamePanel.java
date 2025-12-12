@@ -1,4 +1,4 @@
-package morning;
+package game.stage.morning;
 
 
 import javax.swing.JPanel;
