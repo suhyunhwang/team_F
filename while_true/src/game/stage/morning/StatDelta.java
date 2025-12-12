@@ -1,4 +1,4 @@
-package morning;
+package game.stage.morning;
 
 public class StatDelta {
     public final int hp, ment, intel, social;
